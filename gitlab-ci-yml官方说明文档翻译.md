@@ -381,6 +381,58 @@ job:
 
 #### dynamic environment
 
+### artifacts
+
+#### artifacts:name
+
+#### artifacts:when
+
+#### artifacts:expire_in
+
+### dependencies
+
+### before_script 和 after_script
+
+### coverage
+
+## Git Strategy
+
+## Git Submodule Strategy
+
+## Job stages attempts
+
+## Shallow cloning
+
+## Hidden keys
+
+## Special YAML features
+
+### Anchors
+
+## Triggers
+
+### pages
+
+## Validate the .gitlab-ci.yml
+
+GitLab CI的每个实例都有一个名为Lint的嵌入式调试工具。 你可以在gitlab实例的`/ci/lint`下找到该链接。
+
+## Skipping jobs
+
+如果你的commit信息中包含`[ci skip]`或者`[skip ci]`，不论大小写，那么这个commit将会创建但是jobs也会跳过。
+
+## Examples
+
+访问[examples README](https://docs.gitlab.com/ce/ci/examples/README.html)来查看各种语言的GitLab CI用法示例。
+
+
+
+
+
+
+
+
+
 
 
 
