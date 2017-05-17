@@ -12,7 +12,7 @@
 
 开始构建之前YAML文件定义了一系列带有约束说明的任务。这些任务都是以任务名开始并且至少要包含`script`部分：
 
-```shell
+```yaml
 job1:
   script: "execute-script-for-job1"
   
@@ -28,7 +28,7 @@ job2:
 
 用下面这个例子来说明YAML语法还有更多复杂的任务：
 
-```shell
+```yaml
 image: ruby:2.1
 services:
   - postgres
@@ -92,7 +92,7 @@ stages中的元素顺序决定了对应job的执行顺序：
 
 接下仔细看看这个例子，它包含了3个stage：
 
-```
+```yaml
 stages:
  - build
  - test
@@ -122,32 +122,244 @@ stages:
 
 GItLab CI 允许在`.gitlab-ci.yml`文件中添加变量，并在job环境中起作用。因为这些配置是存储在git仓库中，所以最好是存储项目的非敏感配置，例如：
 
-```shell
+```yaml
 variables:
   DATABASE_URL:"postgres://postgres@postgres/my_database"
 ```
 
 这些变量可以被后续的命令和脚本使用。服务容器也可以使用YAML中定义的变量，因此我们可以很好的调控服务容器。变量也可以定义成[job level](https://docs.gitlab.com/ce/ci/yaml/README.html#job-variables)。
 
-出来用户自定义的变量外，Runner也可以定义它自己的变量。`CI_COMMIT_REG_NAME`就是一个很好的例子，
+出来用户自定义的变量外，Runner也可以定义它自己的变量。`CI_COMMIT_REG_NAME`就是一个很好的例子，它的值表示用于构建项目的分支或tag名称。除了在`.gitlab-ci.yml`中设置变量外，还有可以通过GitLab的界面上设置私有变量。
+
+[更多关于variables。](https://docs.gitlab.com/ce/ci/variables/README.html)
 
 ### cache
 
-> Gitlab Runner v0.7.0 开始引入
+> Gitlab Runner v0.7.0 开始引入。
 
+`cache`用来指定需要在job之间缓存的文件或目录。只能使用该项目工作空间内的路径。
 
+**从GitLab 9.0开始，pipelines和job就默认开启了缓存**
+
+如果`cache`定义在jobs的作用域之外，那么它就是全局缓存，所用jobs都可以使用该缓存。
+
+缓存`binaries`和`.config`中的所有文件：
+
+```yaml
+rspec:
+  script: test
+  cache:
+    paths:
+    - binaries/
+    - .config
+```
+
+缓存git中没有被被跟踪的文件：
+
+```yaml
+rspec:
+  script: test
+  cache:
+    untracked: true
+```
+
+缓存`binaries`下没有被git跟踪的文件：
+
+```yaml
+rspec:
+  script: test
+  cache:
+    untracked: true
+    paths:
+    - binaries/
+```
+
+job中优先级高于全局的。下面这个`rspec`job中将只会缓存`binaries/`下的文件：
+
+```yaml
+cache:
+  paths:
+  - my/files
+
+rspec:
+  script: test
+  cache:
+    key: rspec
+    paths:
+    - binaries/
+```
+
+注意，缓存是在jobs之前进行共享的。如果你不同的jobs缓存不同的文件路径，必须设置不同的**cache:key**，否则缓存内容将被重写。
+
+缓存只是尽力而为之，所以别期望缓存会一直存在。查看更多详细内容，请查阅GitLab Runner。
 
 ##### 缓存key
 
-### 任务
+> GitLab Runner v1.0.0 开始引入。
 
-#### 脚本
+`key`指令允许我们定义缓存的作用域(亲和性)，可以是所有jobs的单个缓存，也可以是每个job，也可以是每个分支或者是任何你认为合适的地方。
 
-#### 阶段
+它也可以让你很好的调整缓存，允许你设置不同jobs的缓存，甚至是不同分支的缓存。
 
-#### 唯一和排除
+`cache:key`可以使用任何的[预定义变量](https://docs.gitlab.com/ce/ci/variables/README.html)。
 
-#### 任务变量
+默认key是默认设置的这个项目缓存，因此默认情况下，每个pipelines和jobs中可以共享一切，从GitLab 9.0开始。
+
+**配置示例**
+
+缓存每个job：
+
+```yaml
+cache:
+  key: "$CI_JOB_NAME"
+  untracked: true
+```
+
+缓存每个分支：
+
+```yaml
+cache:
+  key: "$CI_COMMIT_REF_NAME"
+  untracked: true
+```
+
+缓存每个job且每个分支：
+
+```yaml
+cache:
+  key: "$CI_JOB_NAME/$CI_COMMIT_REF_NAME"
+  untracked: true
+```
+
+缓存每个分支且每个stage：
+
+```yaml
+cache:
+  key: "$CI_JOB_STAGE/$CI_COMMIT_REF_NAME"
+  untracked: true
+```
+
+如果使用的**[Windows Batch](http://blog.csdn.net/hitlion2008/article/details/7467252)(windows批处理)**来跑脚本需要用`%`替代`$`：
+
+```yaml
+cache:
+  key: "%CI_JOB_STAGE%/%CI_COMMIT_REF_NAME%"
+  untracked: true
+```
+
+### Jobs
+
+`.gitlab-ci.yml`允许指定无限量jobs。每个jobs必须有一个唯一的名字，而且不能是上面提到的关键字。job由一列参数来定义jobs的行为。
+
+```yaml
+job_name:
+  script:
+    - rake spec
+    - coverage
+  stage: test
+  only:
+    - master
+  except:
+    - develop
+  tags:
+    - ruby
+    - postgres
+  allow_failure: true
+```
+
+| Keyword       | Required | Description                              |
+| ------------- | -------- | ---------------------------------------- |
+| script        | yes      | Runner执行的命令或脚本                           |
+| image         | no       | 所使用的docker镜像，查阅[使用docker镜像](https://docs.gitlab.com/ce/ci/docker/using_docker_images.html#define-image-and-services-from-gitlab-ciyml) |
+| services      | no       | 所使用的docker服务，查阅[使用docker镜像](https://docs.gitlab.com/ce/ci/docker/using_docker_images.html#define-image-and-services-from-gitlab-ciyml) |
+| stage         | no       | 定义job stage（默认：`test`）                   |
+| type          | no       | `stage`的别名（已弃用）                          |
+| variables     | no       | 定义job级别的变量                               |
+| only          | no       | 定义一列git分支，并为其创建job                       |
+| except        | no       | 定义一列git分支，不创建job                         |
+| tags          | no       | 定义一列tags，用来指定选择哪个Runner（同时Runner也要设置tags） |
+| allow_failure | no       | 允许job失败。失败的job不影响commit状态                |
+| when          | no       | 定义何时开始job。可以是`on_success`，`on_failure`，`always`或者`manual` |
+| dependencies  | no       | 定义job依赖关系，这样他们就可以互相传递artifacts           |
+| cache         | no       | 定义应在后续运行之间缓存的文件列表                        |
+| before_script | no       | 重写一组在作业前执行的命令                            |
+| after_script  | no       | 重写一组在作业后执行的命令                            |
+| environment   | no       | 定义此作业完成部署的环境名称                           |
+| coverage      | no       | 定义给定作业的代码覆盖率设置                           |
+
+#### script
+
+`script`是Runner执行的shell脚步。举个例子：
+
+```yaml
+job:
+  script: "bundle exec rspec"
+```
+
+该参数也可以用数组包含多个命令：
+
+```yaml
+job:
+  script:
+    - uname -a
+    - bundle exec rspec
+```
+
+有时候，`script`命令需要被单引号或者是双引号包裹起来。举个例子，当命令中包含冒号(`:`)时，script需要被包在双引号中，这样YAML解析器才可以正确解析为一个字符串而不是一个键值对(key:value)。使用这些特殊字符的时候一定要注意：`:`,`{`,`}`,`[`,`]`,`,`,`&`,`*`,`#`,`?`,`|`,`-`,`<`,`>`,`=`,`!`。
+
+#### stage
+
+`stage`允许一组jobs进入不同的stages。jobs在相同的`stage`时会`parallel`同时进行。查阅`stages`更多的用法请查看[stages](https://docs.gitlab.com/ce/ci/yaml/README.html#stages)。
+
+#### only and except
+
+`only`和except是两个参数用分支策略来限制jobs构建：
+
+1. `only`定义哪些分支和标签的git项目将会被job执行。
+2. `except`定义哪些分支和标签的git项目将不会被job执行。
+
+下面是refs策略的使用规则：
+
+- `only`和`except`可同时使用。如果`only`和`except`在一个job配置中同时存在，则以`only`为准，跳过`except`(从下面示例中得出)。
+- `only`和`except`可以使用正则表达式。
+- `only`和`except`允许使用特殊的关键字：`branches`，`tags`和`triggers`。
+- `only`和`except`允许使用指定仓库地址但不是forks的仓库(查看示例3)。
+
+在下面这个例子中，`job`将只会运行以`issue-`开始的refs(分支)，然而except中设置将被跳过。
+
+```yaml
+job:
+  # use regexp
+  only:
+    - /^issue-.*$/
+  # use special keyword
+  except:
+    - branches
+```
+
+在下面这个例子中，`job`将只会执行有tags的refs，或者通过API触发器明确地请求构建。
+
+```yaml
+job:
+  # use special keywords
+  only:
+    - tags
+    - triggers
+```
+
+仓库路径只能用于父级仓库执行jobs，而不是forks：
+
+```yaml
+job:
+  only:
+    - branches@gitlab-org/gitlab-ce
+  except:
+    - master@gitlab-org/gitlab-ce
+```
+
+上面这个例子将会为所有的分支执行`job`，但master分支除外。
+
+#### Job variables
 
 #### 标签
 
@@ -157,7 +369,55 @@ variables:
 
 ##### 手动执行
 
-#### 环境
+### enviroment
+
+#### environment:name
+
+#### environment:url
+
+#### environment:on_stop
+
+#### environment:action
+
+#### dynamic environment
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
