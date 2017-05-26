@@ -361,6 +361,12 @@ job:
 
 #### Job variables
 
+在job中是可以使用关键字`variables`来定义job变量。它的运行原理跟[global-level](https://docs.gitlab.com/ce/ci/yaml/README.html#variables)是一样的，但是它允许设置特殊的job变量。
+
+当设置了job级别的关键字`variables`，它会覆盖
+
+
+
 #### 标签
 
 #### 允许的失败
