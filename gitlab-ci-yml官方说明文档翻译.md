@@ -475,27 +475,142 @@ cleanup_job:
 
 > GitLab 8.10 开始引入手动执行。GitLab 9.0 开始引入手动停止。GitLab 9.2 开始引入保护手动操作。
 
-手动操作是不自动执行的特殊类型的job；它们必须要人为启动。手动操作可以从pipeline，build，environment和deployment视图中启动。
+手动操作指令是不自动执行的特殊类型的job；它们必须要人为启动。手动操作指令可以从pipeline，build，environment和deployment视图中启动。
 
-部署到生产环境是手动操作的一个很好示例。
+部署到生产环境是手动操作指令的一个很好示例。
 
 了解更多请查看[environments documentation](https://docs.gitlab.com/ce/ci/environments.html#manually-deploying-to-environments)。
 
-手动操作可以是可选的或阻塞。在定义了手动执行的那个stage中，手动操作将会停止pipline自动执行。当有人通过点击play按钮来执行需要手动执行的job时，可以来恢复pipeline的执行。
+手动操作指令可以是可选的或阻塞。在定义了手动执行的那个stage中，手动操作指令将会停止pipline中的自动执行指令。当有人通过点击play按钮来执行需要手动执行的job时，可以来恢复pipeline的执行。
 
-当pipeline被阻塞，即使是pipeline是成功也不会merge。被阻塞的pipelines也有一个特殊的状态，叫`manual`。
+当pipeline被阻塞时，即使是pipeline是成功状态也不会merge。被阻塞的pipelines也有一个特殊的状态，叫`manual`。
 
+手动操作指令默认是不阻塞的。如果你想要手动操作指令产生阻塞，首先需要在job的配置文件`.gitlab-ci.yml`中添加`allow_failure:false`。
 
+可选的手动操作指令默认设置`allow_failure:true`。
+
+可选动作的状态不影响整个pipeline的状态。
+
+手动操作指令被认为是写操作，所以当前用户触发操作时，必须拥有操作保护分支的权限。换句话说，为了触发一个手动操作指令到pipeline中正在运行的指定分支，当前用户必须拥有推送到这分支的权限。
 
 ### enviroment
 
+> 注意：
+>
+> - GitLab 8.9 开始引入。
+> - 更多关于environment说明或者示例可以查看 [documentation about environments](https://docs.gitlab.com/ce/ci/environments.html)。
+
+`environment`用于定义job部署到特殊的环境中。如果指定了`environment`，并且没有该名称下的环境，则会自动创建新环境。
+
+在最简单的格式中，环境关键字可以定义为：
+
+```shell
+deploy to production:
+  stage: deploy
+  script: git push production HEAD:master
+  environment:
+    name: production
+```
+
+在上面这个例子中，`deploy to profuction`job将会执行部署到`production`环境的操作。
+
 #### environment:name
+
+> 注意
+>
+> - GitLab 8.11 开始引入。
+> - 在GitLab8.11之前，环境名称定义为`environment:production`。现在推荐的做法是定义为`name`关键字。
+
+`environment`名称可以包含：
+
+- 英文字母(`letters`)
+- 数字(`digits`)
+- 空格(`spaces`)
+- `-`
+- `_`
+- `/`
+- `$`
+- `{`
+- `}`
+
+常用的名称有`qa`,`staging`，和`production`，当然你可以在你的工作流中使用任意名字。
+
+除了在`environment`关键字右边紧跟name定义方法外，也是可以为环境名称单独设定一个值。例如，用`name`关键字在`environment`下面设置：
+
+```shell
+deploy to production:
+  stage: deploy
+  script: git push production HEAD:master
+  environment:
+    name: production
+```
 
 #### environment:url
 
+> 注意：
+>
+> - GitLab 8.11 开始引用。
+> - 在GitLab 8.11之前，URL只能在GitLab's UI中添加。现在推荐的定义方法是在`.gitlab-ci.yml`。
+
+这是设置一个可选值，它会显示在按钮中，点击它可以带你到设置的URL页面。
+
+在下面这个例子中，如果job都成功完成了，在environment/deployments页面中将会创建一个合并请求的按钮，它将指向`https://prod.example.com`。
+
+```shell
+deploy to production:
+  stage: deploy
+  script: git push production HEAD:master
+  environment:
+    name: production
+    url: https://prod.example.com
+```
+
 #### environment:on_stop
 
+> 注意：
+>
+> - GitLab 8.13中开始[引入](https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/6669)。
+> - 从GitLab 8.14开始，当在environment中定义了一个stop操作，GitLab将会在相关联的分支本删除时自动触发一个stop操作。
+
+关闭(停止)environments可以通过在`environment`下定义关键字`on_stop`来实现。它定义了一个不同的job，用于关闭environment。
+
+请查看`environment:action`模块中例子。
+
 #### environment:action
+
+> Gitlab 8.13 开始[引入](https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/6669)。
+
+`action`和`on_stop`联合使用，定义在job中，用来关闭environment。
+
+举个例子：
+
+```shell
+review_app:
+  stage: deploy
+  script: make deploy-app
+  environment:
+    name: review
+    on_stop: stop_review_app
+
+stop_review_app:
+  stage: deploy
+  script: make delete-app
+  when: manual
+  environment:
+    name: review
+    action: stop
+```
+
+上面这个例子中，我们定义了`review_app`job来部署到`review`环境中，同时我们也定义了一个新`stop_review_app`job在`on_stop`中。一旦`review_app`job执行完成并且成功，它将触发定义在`when`中的`stop_review_app`job。在这种情况下，我们设置为`manual`，需要通过GitLab's web界面来允许[manual action](https://docs.gitlab.com/ce/ci/yaml/README.html#manual-actions)。
+
+`stop_review_app`job需要定义下面这些关键字：
+
+- `when` - [说明](https://docs.gitlab.com/ce/ci/yaml/README.html#when)
+- `environment:name`
+- `environment:action`
+- `stage`需要和`review_app`相同，以便分支删除被删除的时候自动执行停止。
+
+
 
 #### dynamic environment
 
