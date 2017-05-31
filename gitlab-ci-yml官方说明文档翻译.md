@@ -361,13 +361,129 @@ job:
 
 #### Job variables
 
-#### 标签
+在job中是可以使用关键字`variables`来定义job变量。它的运行原理跟[global-level](https://docs.gitlab.com/ce/ci/yaml/README.html#variables)是一样的，但是它允许设置特殊的job变量。
 
-#### 允许的失败
+当设置了job级别的关键字`variables`，它会覆盖全局YAML和预定义中的job变量。想要关闭全局变量可以在job中设置一个空数组：
+
+```shell
+job_name:
+  variables: []
+```
+
+Job变量的优先级关系可查看[variables文档](https://docs.gitlab.com/ce/ci/variables/README.html)说明。
+
+#### tags
+
+`tags`可以从允许运行此项目的所有Runners中选择特定的Runners来执行jobs。
+
+在注册Runner的过程中，我们可以设置Runner的标签，比如`ruby`，`postgres`，`development`。
+
+`tags`可通过tags来指定特殊的Runners来运行jobs：
+
+```shell
+job:
+  tags:
+    - ruby
+    - postgres
+```
+
+上面这个示例中，需要确保构建此`job`的Runner必须定义了`ruby`和`postgres`这两个tags。
+
+### allow_failure
+
+`allow_failure`可以用于当你想设置一个job失败的之后并不影响后续的CI组件的时候。失败的jobs不会影响到commit状态。
+
+当开启了允许job失败，所有的intents和purposes里的pipeline都是成功/绿色，但是也会有一个"CI build passed with warnings"信息显示在merge request或commit或job page。这被允许失败的作业使用，但是如果失败表示其他地方应采取其他（手动）步骤。
+
+下面的这个例子中，`job1`和`job2`将会并列进行，如果`job1`失败了，它也不会影响进行中的下一个stage，因为这里有设置了`allow_failure: true`。
+
+```shell
+job1:
+  stage: test
+  script:
+  - execute_script_that_will_fail
+  allow_failure: true
+
+job2:
+  stage: test
+  script:
+  - execute_script_that_will_succeed
+
+job3:
+  stage: deploy
+  script:
+  - deploy_to_staging
+```
 
 #### when
 
-##### 手动执行
+`when` is used to implement jobs that are run in case of failure or despite the failure.
+
+`when`可以设置以下值：
+
+1. `on_success` - 只有前面stages的所有工作成功时才执行。 这是默认值。
+2. `on_failure` - 当前面stages中任意一个jobs失败后执行。
+3. `always` -  无论前面stages中jobs状态如何都执行。
+4. ``manual` ` - 手动执行(GitLab8.10增加)。更多请查看[手动操作](https://docs.gitlab.com/ce/ci/yaml/README.html#manual-actions)。
+
+举个例子：
+
+```shell
+stages:
+- build
+- cleanup_build
+- test
+- deploy
+- cleanup
+
+build_job:
+  stage: build
+  script:
+  - make build
+
+cleanup_build_job:
+  stage: cleanup_build
+  script:
+  - cleanup build when failed
+  when: on_failure
+
+test_job:
+  stage: test
+  script:
+  - make test
+
+deploy_job:
+  stage: deploy
+  script:
+  - make deploy
+  when: manual
+
+cleanup_job:
+  stage: cleanup
+  script:
+  - cleanup after jobs
+  when: always
+```
+
+脚本说明：
+
+1. 只有当`build_job`失败的时候才会执行``cleanup_build_job` 。
+2. 不管前一个job执行失败还是成功都会执行``cleanup_job` 。
+3. 可以从GitLab界面中手动执行`deploy_jobs`。
+
+#### Manual actions 
+
+> GitLab 8.10 开始引入手动执行。GitLab 9.0 开始引入手动停止。GitLab 9.2 开始引入保护手动操作。
+
+手动操作是不自动执行的特殊类型的job；它们必须要人为启动。手动操作可以从pipeline，build，environment和deployment视图中启动。
+
+部署到生产环境是手动操作的一个很好示例。
+
+了解更多请查看[environments documentation](https://docs.gitlab.com/ce/ci/environments.html#manually-deploying-to-environments)。
+
+
+
+
 
 ### enviroment
 
