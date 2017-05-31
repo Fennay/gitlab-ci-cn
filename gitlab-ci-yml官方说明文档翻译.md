@@ -4,7 +4,7 @@
 
 此文档用于描述.gitlab-ci.yml语法，.gitlab-ci.yml文件被用来管理项目的runner 任务。
 
-如果想要快速的了解GitLab CI ，可移步[快速引导](https://docs.gitlab.com/ce/ci/quick_start/README.html)。
+如果想要快速的了解GitLab CI ，可查看[快速引导](https://docs.gitlab.com/ce/ci/quick_start/README.html)。
 
 ## .gitlab-ci.yml
 
@@ -481,7 +481,9 @@ cleanup_job:
 
 了解更多请查看[environments documentation](https://docs.gitlab.com/ce/ci/environments.html#manually-deploying-to-environments)。
 
+手动操作可以是可选的或阻塞。在定义了手动执行的那个stage中，手动操作将会停止pipline自动执行。当有人通过点击play按钮来执行需要手动执行的job时，可以来恢复pipeline的执行。
 
+当pipeline被阻塞，即使是pipeline是成功也不会merge。被阻塞的pipelines也有一个特殊的状态，叫`manual`。
 
 
 
