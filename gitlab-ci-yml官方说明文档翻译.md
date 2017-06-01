@@ -715,7 +715,7 @@ release-job:
 
 ---
 
-配置示例
+**配置示例**
 
 通过使用当前job的名字作为存档名称：
 
@@ -765,7 +765,58 @@ job:
 
 #### artifacts:when
 
+> GitLab 8.9和GitLab Runner v1.3.0 引入。
+
+在job失败的时候，`artifacts:when`用来上传artifacts或者忽略失败。
+
+`artifacts:when`可以设置一下值：
+
+1. `on_success` - 当job成功的时候上传artifacts。默认值。
+2. `on_failure` - 当job失败的时候上传artifacts。
+3. `always` - 不论job失败还是成功都上传artifacts。
+
+---
+
+**示例配置**
+
+只在job失败的时候上传artifacts。
+
+```shell
+job:
+  artifacts:
+    when: on_failure
+```
+
 #### artifacts:expire_in
+
+> GitLab 8.9 和 GitLab Runner v1.3.0 引入。
+
+`artifacts:expire_in`用于过期后删除邮件上传的artifacts。默认情况下，artifacts都是在GitLab中永久保存。`expire_in`允许设置设置artifacts的存储时间，从它们被上传存储到GitLab开始计算。
+
+可以通过job页面的**Keep**来修改有效期。
+
+过期后，artifacts会被通过一个默认每小时执行一次的定时job删除，所以在过期后无法访问artifacts。
+
+`expire_in`是一个时间区间。下面可设置的值：
+
+- '3 mins 4 sec'
+- '2 hrs 20 min'
+- '2h20min'
+- '6 mos 1 day'
+- '47 yrs 6 mos and 4d'
+- '3 weeks and 2 days'
+
+---
+
+**示例配置**
+
+设置artifacts的有效期为一个星期：
+
+```shell
+job:
+  artifacts:
+    expire_in: 1 week
+```
 
 ### dependencies
 
