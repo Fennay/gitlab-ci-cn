@@ -611,12 +611,157 @@ stop_review_app:
 - `stage`需要和`review_app`相同，以便分支删除被删除的时候自动执行停止。
 
 
-
 #### dynamic environment
+
+> 注意：
+>
+> - GitLab 8.12开始引入，并且要求GitLab Runner 1.6 。
+> - GitLab 8.15开始引入`$CI_ENVIRONMENT_SLUG`。
+
+`environment`也可以是代表配置项，其中包含`name`和`url`。这些参数可以使用任何的[CI variables](https://docs.gitlab.com/ce/ci/yaml/README.html#variables)(包括预定义、安全变量和`.gitlab-ci.yml`中的变量)。
+
+举个例子：
+
+```shell
+deploy as review app:
+  stage: deploy
+  script: make deploy
+  environment:
+    name: review/$CI_COMMIT_REF_NAME
+    url: https://$CI_ENVIRONMENT_SLUG.example.com/
+```
+
+当`$CI_COMMIT_REF_NAME` 被Runner设置为[environment variable](https://docs.gitlab.com/ce/ci/variables/README.html)时，`deply as review app`job将会被指定部署到动态创建`revuew/$CI_COMMIT_REF_NAME`的环境中。`$CI_ENVIRONMENT_SLUG`变量是基于环境名称的，最终组合成完整的URLs。在这种情况下，如果`deploy as review app`job是运行在名称为`pow`的分支下，那么可以通过URL`https"//review-pw.example.com/`来访问这个环境。
+
+这当然意味着托管应用程序的底层服务器已经正确配置。
+
+常见的做法是为分支创建动态环境，并讲它们作为Review Apps。可以通过https://gitlab.com/gitlab-examples/review-apps-nginx/上查看使用Review Apps的简单示例。
 
 ### artifacts
 
+> 注意：
+>
+> - 非Windows平台从GitLab Runner v0.7.0中引入。
+> - Windows平台从GitLab Runner V1.0.0中引入。
+> - 在GItLab 9.2之前，在artifacts之后存储缓存。
+> - 在GItLab 9.2之后，在artifacts之前存储缓存。
+> - 目前并不是所有的executors都支持。
+> - 默认情况下，job artifacts 只正对成功的jobs收集。
+
+`artifacts`用于指定成功后应附加到job的文件和目录的列表。只能使用项目工作间内的文件或目录路径。如果想要在不通的job之间传递artifacts，请查[阅依赖关系](https://docs.gitlab.com/ce/ci/yaml/README.html#dependencies)。以下是一些例子：
+
+发送`binaries`和`.config`中的所有文件：
+
+```shell
+artifacts:
+  paths:
+  - binaries/
+  - .config
+```
+
+发送所有没有被Git跟踪的文件：
+
+```shell
+artifacts:
+  untracked: true
+```
+
+发送没有被Git跟踪和`binaries`中的所有文件：
+
+```shell
+artifacts:
+  untracked: true
+  paths:
+  - binaries/
+```
+
+定义一个空的[dependencies](https://docs.gitlab.com/ce/ci/yaml/README.html#dependencies)可以禁用artifact传递：
+
+```shell
+job:
+  stage: build
+  script: make build
+  dependencies: []
+```
+
+有时候只需要为标签为releases创建artifacts，以避免将临时构建的artifacts传递到生产服务器中。
+
+只为tags创建artifacts（`default-job`将不会创建artifacts）：
+
+```shell
+default-job:
+  script:
+    - mvn test -U
+  except:
+    - tags
+
+release-job:
+  script:
+    - mvn package -U
+  artifacts:
+    paths:
+    - target/*.war
+  only:
+    - tags
+```
+
+在job成功完成后artifacts将会发送到GitLab中，同时也会在GitLab UI中提供下载。
+
 #### artifacts:name
+
+> GitLab 8.6 和 Runner v1.1.0 引入。
+
+`name`允许定义创建的artifacts存档的名称。这样一来，我们可以为每个存档提供一个唯一的名称，当需要从GitLab中下载是才不会混乱。`artifacts:name`可以使用任何的[预定义变量](https://docs.gitlab.com/ce/ci/variables/README.html)([predefined variables](https://docs.gitlab.com/ce/ci/variables/README.html))。它的默认名称为`artifacts`，当下载是就变成了`artifacts.zip`。
+
+---
+
+配置示例
+
+通过使用当前job的名字作为存档名称：
+
+```shell
+job:
+  artifacts:
+    name: "$CI_JOB_NAME"
+```
+
+使用当前分支名称或者是tag作为存到名称，只存档没有被Git跟踪的文件：
+
+```shell
+job:
+   artifacts:
+     name: "$CI_COMMIT_REF_NAME"
+     untracked: true
+```
+
+使用当前job名称和当前分支名称或者是tag作为存档名称，只存档没有被Git跟踪的文件：
+
+```shell
+job:
+  artifacts:
+    name: "${CI_JOB_NAME}_${CI_COMMIT_REF_NAME}"
+    untracked: true
+```
+
+使用当前[stage](https://docs.gitlab.com/ce/ci/yaml/README.html#stages)和分支名称作为存档名称：
+
+```shell
+job:
+  artifacts:
+    name: "${CI_JOB_STAGE}_${CI_COMMIT_REF_NAME}"
+    untracked: true
+```
+
+如果是使用Windows批处理来运行shell脚本，需要用`%`替换`$`：
+
+```shell
+job:
+  artifacts:
+    name: "%CI_JOB_STAGE%_%CI_COMMIT_REF_NAME%"
+    untracked: true
+```
+
+
 
 #### artifacts:when
 
@@ -657,52 +802,6 @@ GitLab CI的每个实例都有一个名为Lint的嵌入式调试工具。 你可
 ## Examples
 
 访问[examples README](https://docs.gitlab.com/ce/ci/examples/README.html)来查看各种语言的GitLab CI用法示例。
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
