@@ -820,6 +820,12 @@ job:
 
 ### dependencies
 
+> GitLab 8.6 和 GitLab RUnner v1.1.1引入。
+
+这个功能应该与`artifacts`一起使用，并允许定义在不同jobs之间传递artifacts。
+
+注意：所有之前的stages都是默认设置通过。
+
 ### before_script 和 after_script
 
 ### coverage
