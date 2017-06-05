@@ -289,7 +289,7 @@ job_name:
 
 #### script
 
-`script`是Runner执行的shell脚步。举个例子：
+`script`是Runner执行的yaml脚步。举个例子：
 
 ```yaml
 job:
@@ -365,7 +365,7 @@ job:
 
 当设置了job级别的关键字`variables`，它会覆盖全局YAML和预定义中的job变量。想要关闭全局变量可以在job中设置一个空数组：
 
-```shell
+```yaml
 job_name:
   variables: []
 ```
@@ -380,7 +380,7 @@ Job变量的优先级关系可查看[variables文档](https://docs.gitlab.com/ce
 
 `tags`可通过tags来指定特殊的Runners来运行jobs：
 
-```shell
+```yaml
 job:
   tags:
     - ruby
@@ -397,7 +397,7 @@ job:
 
 下面的这个例子中，`job1`和`job2`将会并列进行，如果`job1`失败了，它也不会影响进行中的下一个stage，因为这里有设置了`allow_failure: true`。
 
-```shell
+```yaml
 job1:
   stage: test
   script:
@@ -428,7 +428,7 @@ job3:
 
 举个例子：
 
-```shell
+```yaml
 stages:
 - build
 - cleanup_build
@@ -504,7 +504,7 @@ cleanup_job:
 
 在最简单的格式中，环境关键字可以定义为：
 
-```shell
+```yaml
 deploy to production:
   stage: deploy
   script: git push production HEAD:master
@@ -537,7 +537,7 @@ deploy to production:
 
 除了在`environment`关键字右边紧跟name定义方法外，也是可以为环境名称单独设定一个值。例如，用`name`关键字在`environment`下面设置：
 
-```shell
+```yaml
 deploy to production:
   stage: deploy
   script: git push production HEAD:master
@@ -556,7 +556,7 @@ deploy to production:
 
 在下面这个例子中，如果job都成功完成了，在environment/deployments页面中将会创建一个合并请求的按钮，它将指向`https://prod.example.com`。
 
-```shell
+```yaml
 deploy to production:
   stage: deploy
   script: git push production HEAD:master
@@ -584,7 +584,7 @@ deploy to production:
 
 举个例子：
 
-```shell
+```yaml
 review_app:
   stage: deploy
   script: make deploy-app
@@ -622,7 +622,7 @@ stop_review_app:
 
 举个例子：
 
-```shell
+```yaml
 deploy as review app:
   stage: deploy
   script: make deploy
@@ -652,7 +652,7 @@ deploy as review app:
 
 发送`binaries`和`.config`中的所有文件：
 
-```shell
+```yaml
 artifacts:
   paths:
   - binaries/
@@ -661,14 +661,14 @@ artifacts:
 
 发送所有没有被Git跟踪的文件：
 
-```shell
+```yaml
 artifacts:
   untracked: true
 ```
 
 发送没有被Git跟踪和`binaries`中的所有文件：
 
-```shell
+```yaml
 artifacts:
   untracked: true
   paths:
@@ -677,7 +677,7 @@ artifacts:
 
 定义一个空的[dependencies](https://docs.gitlab.com/ce/ci/yaml/README.html#dependencies)可以禁用artifact传递：
 
-```shell
+```yaml
 job:
   stage: build
   script: make build
@@ -688,7 +688,7 @@ job:
 
 只为tags创建artifacts（`default-job`将不会创建artifacts）：
 
-```shell
+```yaml
 default-job:
   script:
     - mvn test -U
@@ -719,7 +719,7 @@ release-job:
 
 通过使用当前job的名字作为存档名称：
 
-```shell
+```yaml
 job:
   artifacts:
     name: "$CI_JOB_NAME"
@@ -727,7 +727,7 @@ job:
 
 使用当前分支名称或者是tag作为存到名称，只存档没有被Git跟踪的文件：
 
-```shell
+```yaml
 job:
    artifacts:
      name: "$CI_COMMIT_REF_NAME"
@@ -736,7 +736,7 @@ job:
 
 使用当前job名称和当前分支名称或者是tag作为存档名称，只存档没有被Git跟踪的文件：
 
-```shell
+```yaml
 job:
   artifacts:
     name: "${CI_JOB_NAME}_${CI_COMMIT_REF_NAME}"
@@ -745,16 +745,16 @@ job:
 
 使用当前[stage](https://docs.gitlab.com/ce/ci/yaml/README.html#stages)和分支名称作为存档名称：
 
-```shell
+```yaml
 job:
   artifacts:
     name: "${CI_JOB_STAGE}_${CI_COMMIT_REF_NAME}"
     untracked: true
 ```
 
-如果是使用Windows批处理来运行shell脚本，需要用`%`替换`$`：
+如果是使用Windows批处理来运行yaml脚本，需要用`%`替换`$`：
 
-```shell
+```yaml
 job:
   artifacts:
     name: "%CI_JOB_STAGE%_%CI_COMMIT_REF_NAME%"
@@ -781,7 +781,7 @@ job:
 
 只在job失败的时候上传artifacts。
 
-```shell
+```yaml
 job:
   artifacts:
     when: on_failure
@@ -812,7 +812,7 @@ job:
 
 设置artifacts的有效期为一个星期：
 
-```shell
+```yaml
 job:
   artifacts:
     expire_in: 1 week
@@ -826,15 +826,121 @@ job:
 
 注意：所有之前的stages都是默认设置通过。
 
+如果要使用此功能，应该在上下文的job中定义`dependencies`，并且列出之前都已经通过的jobs和可下载的artifacts。你只能在当前执行的stages前定义jobs。你如果在当前stages或者后续的stages中定义了jobs，它将会报错。可以通过定义一个空数组是当前job跳过下载artifacts。
+
+---
+
+在接下来的例子中，我们定义两个带artifacts的jobs，`build:osx`和`build:linux`。当`test:osx`开始执行的时候，`build:osx`的artifacts就会开始下载并且会在build的stages下执行。同样的会发生在`test:linux`，从`build:linux`中下载artifacts。
+
+因为stages的优先级关系，`deploy`job将会下载之前jobs的所有artifacts：
+
+```yaml
+build:osx:
+  stage: build
+  script: make build:osx
+  artifacts:
+    paths:
+    - binaries/
+
+build:linux:
+  stage: build
+  script: make build:linux
+  artifacts:
+    paths:
+    - binaries/
+
+test:osx:
+  stage: test
+  script: make test:osx
+  dependencies:
+  - build:osx
+
+test:linux:
+  stage: test
+  script: make test:linux
+  dependencies:
+  - build:linux
+
+deploy:
+  stage: deploy
+  script: make deploy
+```
+
 ### before_script 和 after_script
+
+它可能会覆盖全局定义的`before_script`和`after_script`：
+
+```yaml
+before_script:
+- global before script
+
+job:
+  before_script:
+  - execute this instead of global before script
+  script:
+  - my command
+  after_script:
+  - execute this after my script
+```
 
 ### coverage
 
+> 注意：
+>
+> GitLab 8.17 [引入](https://gitlab.com/gitlab-org/gitlab-ce/merge_requests/7447)。
+
+`coverage`允许你配置代码覆盖率将会从该job中提取输出。
+
+在这里正则表达式是唯一有效的值。因此，字符串的前后必须使用`/`包含来表明一个正确的正则表达式规则。特殊字符串需要转义。
+
+一个简单的例子：
+
+```yaml
+job1:
+  coverage: '/Code coverage: \d+\.\d+/'
+```
+
 ## Git Strategy
+
+> GitLab 8.9中以试验性功能引入。将来的版本中可能改变或完全移除。`GIT_STRATEGY`要求GitLab Runner v1.7+。
+
+你可以通过设置`GIT_STRATEGY`用于获取最新的代码，可以再全局`variables`或者是在单个job的`variables`模块中设置。如果没有设置，将从项目中使用默认值。
+
+可以设置的值有：`clone`，`fetch`，和`none`。
+
+`clone`是最慢的选项。它会从头开始克隆整个仓库，包含每一个job，以确保项目工作区是最原始的。
+
+```yaml
+variables:
+  GIT_STRATEGY: clone
+```
+
+`fetch`是最快，
 
 ## Git Submodule Strategy
 
 ## Job stages attempts
+
+> GitLab引入，要求GItLab Runner v1.9+。
+
+正在执行的job将会按照你设置尝试次数依次执行下面的stages：
+
+| 变量                             | 描述               |
+| ------------------------------ | ---------------- |
+| **GET_SOURCES_ATTEMPTS**       | 获取job源的尝试次数      |
+| **ARTIFACT_DOWNLOAD_ATTEMPTS** | 下载artifacts的尝试次数 |
+| **RESTORE_CACHE_ATTEMPTS**     | 重建缓存的尝试次数        |
+
+默认是一次尝试。
+
+例如：
+
+```yaml
+variables:
+  GET_SOURCES_ATTEMPTS: 3
+```
+
+你可以在全局`variables`模块中设置，也可以在单个job的`variables`模块中设置。
 
 ## Shallow cloning
 
