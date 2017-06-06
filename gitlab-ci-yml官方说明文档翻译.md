@@ -915,9 +915,51 @@ variables:
   GIT_STRATEGY: clone
 ```
 
-`fetch`是最快，
+当它重新使用项目工作区是，`fetch`是更快（如果不存在则返回克隆）。`git clean`用于撤销上一个job做的任何改变，`git fetch`用于获取上一个job到现在的的commit。
+
+```yaml
+variables:
+  GIT_STRATEGY: fetch
+```
+
+`none`也是重新使用项目工作区，但是它会跳过所有的Git操作（包括GitLab Runner前的克隆脚本，如果存在的话）。它主要用在操作job的artifacts（例如：`deploy`）。Git数据仓库肯定是存在的，但是他肯定不是最新的，所以你只能依赖于从项目工作区的缓存或者是artifacts带来的文件。
+
+```yaml
+variables:
+  GIT_STRATEGY: none
+```
+
+## Git Checout
+
+> GitLab Runner 9.3 引入。
+
+当`GIT_STRATEGY`设置为`clone`或`fetch`时，可以使用`GIT_CHECKOUT`变量来指定是否应该运行`git checkout`。如果没有指定，它默认为true。就像`GIT_STRATEGY`一样，它可以设置在全局`variables`或者是单个job的`variables`中设置。
+
+如果设置为`false`，Runner就会：
+
+- `fetch` - 更新仓库并在当前版本中保留工作副本，
+- `clone` - 克隆仓库并在默认分支中保留工作副本。
+
+Having this setting set to `true` will mean that for both `clone` and `fetch` strategies the Runner will checkout the working copy to a revision related to the CI pipeline:
+
+【如果设置这个为`true`将意味着`clone`和`fetch`策略都会让Runner执行项目工作区更新到最新：】
+
+```yaml
+variables:
+  GIT_STRATEGY: clone
+  GIT_CHECKOUT: false
+script:
+  - git checkout master
+  - git merge $CI_BUILD_REF_NAME
+```
 
 ## Git Submodule Strategy
+
+> 需要GitLab Runner v1.10+。
+
+
+
+
 
 ## Job stages attempts
 
