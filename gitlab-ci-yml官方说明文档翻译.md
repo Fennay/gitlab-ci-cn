@@ -957,6 +957,18 @@ script:
 
 > 需要GitLab Runner v1.10+。
 
+`GIT_SUBMODULE_STRATEGY`变量用于在构建之前拉取代码时，Git子模块是否或者如何被引入。就像`GIT_STRATEGY`一样，它可在全局`variables`或者是单个job的`variables`模块中设置。
+
+它的可用值有：`none`，`normal`和`recursive`：
+
+- `none`意味着在拉取项目代码时，子模块将不会被引入。这个是默认值，与v1.10之前相同的。
+- `normal`意味着在只有顶级子模块会被引入。它相当于：
+
+```yaml
+git submodule sync
+git submodule update --init
+```
+
 
 
 
