@@ -969,9 +969,17 @@ git submodule sync
 git submodule update --init
 ```
 
+`recursive`意味着所有的子模块（包括子模块的子模块）都会被引入，他相当于：
 
+```yaml
+git submodule sync --recursive
+git submodule update --init --recursive
+```
 
+注意：如果想要此功能正常工作，子模块必须配置（在`.gitmodules`）下面中任意一个：
 
+- 可访问的公共仓库http(s)地址，
+- 在同一个GitLab服务器上有一个可访问到另外的仓库的真实地址。更多查看[Git 子模块文档](https://docs.gitlab.com/ce/ci/git_submodules.html)。
 
 ## Job stages attempts
 
@@ -998,15 +1006,187 @@ variables:
 
 ## Shallow cloning
 
+> GitLab 8.9 以实验性功能引入。在将来的版本中有可能改变或者完全移除。
+
+你可以通过`GIT_DEPTH`来指定抓取或克隆的深度。它可浅层的克隆仓库，这可以显著加速具有大量提交和旧的大型二进制文件的仓库的克隆。这个设置的值会传递给`git fetch`和`git clone`。
+
+> 注意：如果设置depth=1，并且有一个jobs队列或者是重试jobs，则jobs可能会失败。
+
+由于Git抓取和克隆是基于一个REF，例如分支的名称，所以Runner不能指定克隆一个commit SHA。如果队列中有多个jobs，或者您正在重试旧的job，则需要测试的提交应该在克隆的Git历史记录中存在。设置`GIT_DEPTH`太小的值可能会导致无法运行哪些旧的commits。在job日志中可以查看`unresolved reference`。你应该考虑设置`GIT_DEPTH`为一个更大的值。
+
+当`GIT_DEPTH`只设置了部分存在的记录时，哪些依赖于`git describe`的jobs也许不能正确的工作。
+
+只抓取或克隆最后的3次commits：
+
+```yaml
+variables:
+  GIT_DEPTH: "3"
+```
+
 ## Hidden keys
+
+> GitLab 8.6 和 GitLab Runner v1.1.1引入。
+
+Key 是以`.`开始的，GitLab CI 将不会处理它。你可以使用这个功能来忽略jobs，或者用[Special YAML features ](https://docs.gitlab.com/ce/ci/yaml/README.html#special-yaml-features)转换隐藏键为模版。
+
+在下面这个例子中，`.key_name`将会被忽略：
+
+```yaml
+.key_name:
+  script:
+    - rake spec
+```
+
+Hidden keys 可以是像普通CI jobs一样的哈希值，但你也可以利用special YAMLfeatures来使用不同类型的结构。
 
 ## Special YAML features
 
+使用special YAML features 像anchors(`&`)，aliases(`*`)和map merging(`<<`)，这将使您可以大大降低`.gitlab-ci.yml`的复杂性。
+
+查看更多[YAML features](https://learnxinyminutes.com/docs/yaml/)。
+
 ### Anchors
+
+> GitLab 8.6 和 GitLab Runner v1.1.1引入。
+
+YAML有个方便的功能称为"锚",它可以让你轻松的在文档中复制内容。Anchors可用于复制/继承属性，并且是使用[hidden keys](https://docs.gitlab.com/ce/ci/yaml/README.html#hidden-keys)来提供模版的完美示例。
+
+下面这个例子使用了anchors和map merging。它将会创建两个jobs，`test1`和`test2`，该jobs将集成`.job_template`的参数，每个job都自定义脚本：
+
+```yaml
+.job_template: &job_definition  # Hidden key that defines an anchor named 'job_definition'
+  image: ruby:2.1
+  services:
+    - postgres
+    - redis
+
+test1:
+  <<: *job_definition           # Merge the contents of the 'job_definition' alias
+  script:
+    - test1 project
+
+test2:
+  <<: *job_definition           # Merge the contents of the 'job_definition' alias
+  script:
+    - test2 project
+```
+
+`&`在anchor的名称(`job_definition`)前设置，`<<`表示"merge the given hash into the current one"，`*`包括命名的anchor(`job_definition`)。扩展版本如下：
+
+```yaml
+.job_template:
+  image: ruby:2.1
+  services:
+    - postgres
+    - redis
+
+test1:
+  image: ruby:2.1
+  services:
+    - postgres
+    - redis
+  script:
+    - test1 project
+
+test2:
+  image: ruby:2.1
+  services:
+    - postgres
+    - redis
+  script:
+    - test2 project
+```
+
+让我们来看另外一个例子。这一次我们将用anchors来定义两个服务。两个服务会创建两个job，`test:postgres`和`test:mysql`，他们会在`.job_template`中共享定义的`script`指令，以及分别在`.postgres_services`和`.mysql_services`中定义的`service`指令：
+
+```yaml
+.job_template: &job_definition
+  script:
+    - test project
+
+.postgres_services:
+  services: &postgres_definition
+    - postgres
+    - ruby
+
+.mysql_services:
+  services: &mysql_definition
+    - mysql
+    - ruby
+
+test:postgres:
+  <<: *job_definition
+  services: *postgres_definition
+
+test:mysql:
+  <<: *job_definition
+  services: *mysql_definition
+```
+
+扩展版本如下：
+
+```yaml
+.job_template:
+  script:
+    - test project
+
+.postgres_services:
+  services:
+    - postgres
+    - ruby
+
+.mysql_services:
+  services:
+    - mysql
+    - ruby
+
+test:postgres:
+  script:
+    - test project
+  services:
+    - postgres
+    - ruby
+
+test:mysql:
+  script:
+    - test project
+  services:
+    - mysql
+    - ruby
+```
+
+你可以看到hidden keys被方便的用作模版。
 
 ## Triggers
 
-### pages
+Triggers 可用于强制使用API调用重建特定分支，tag或commits。
+
+[在triggers文档中查看更多。](https://docs.gitlab.com/ce/ci/triggers/README.html)
+
+## pages
+
+pages是一个特殊的job，用于将静态的内容上传到GitLab，可用于为您的网站提供服务。它有特殊的语法，因此必须满足以下两个要求：
+
+1. 任何静态内容必须放在`public/`目录下
+2. `artifacts`必须定义在`public/`目录下
+
+下面的这个例子是将所有文件从项目根目录移动到`public/`目录。`.public`工作流是`cp`，并且它不会循环复制`public/`本身。
+
+```yaml
+pages:
+  stage: deploy
+  script:
+  - mkdir .public
+  - cp -r * .public
+  - mv .public public
+  artifacts:
+    paths:
+    - public
+  only:
+  - master
+```
+
+更多内容请查看[GitLab Pages用户文档](https://docs.gitlab.com/ce/user/project/pages/index.html)。
 
 ## Validate the .gitlab-ci.yml
 
