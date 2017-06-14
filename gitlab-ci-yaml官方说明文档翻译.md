@@ -22,7 +22,7 @@ job2:
 
 上面这个例子就是一个最简单且带有两个独立任务的CI配置，每个任务分别执行不同的命令。
 
-`script`可以直接系统命令(例如：./configure;make;make install)或者是直接执行脚本(test.sh)。
+`script`可以直接执行系统命令(例如：./configure;make;make install)或者是直接执行脚本(test.sh)。
 
 任务是由[Runners](https://docs.gitlab.com/ce/ci/runners/README.html)接管并且由服务器中runner执行。更重要的是，每一个任务的执行过程都是独立运行的。
 
@@ -54,7 +54,7 @@ job1:
     - docker
 ```
 
-下面列出保留字段，这些保留字段是无法作为`job`名称：
+下面列出保留字段，这些保留字段不能被定义为`job`名称：
 
 | 关键字           | 是否必须 | 描述                                       |
 | ------------- | ---- | ---------------------------------------- |
@@ -193,7 +193,7 @@ rspec:
 
 缓存只是尽力而为之，所以别期望缓存会一直存在。查看更多详细内容，请查阅GitLab Runner。
 
-##### 缓存key
+#### 缓存key
 
 > GitLab Runner v1.0.0 开始引入。
 
