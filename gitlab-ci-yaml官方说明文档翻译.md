@@ -129,7 +129,7 @@ variables:
 
 这些变量可以被后续的命令和脚本使用。服务容器也可以使用YAML中定义的变量，因此我们可以很好的调控服务容器。变量也可以定义成[job level](https://docs.gitlab.com/ce/ci/yaml/README.html#job-variables)。
 
-出来用户自定义的变量外，Runner也可以定义它自己的变量。`CI_COMMIT_REG_NAME`就是一个很好的例子，它的值表示用于构建项目的分支或tag名称。除了在`.gitlab-ci.yml`中设置变量外，还有可以通过GitLab的界面上设置私有变量。
+除了用户自定义的变量外，Runner也可以定义它自己的变量。`CI_COMMIT_REG_NAME`就是一个很好的例子，它的值表示用于构建项目的分支或tag名称。除了在`.gitlab-ci.yml`中设置变量外，还有可以通过GitLab的界面上设置私有变量。
 
 [更多关于variables。](https://docs.gitlab.com/ce/ci/variables/README.html)
 
