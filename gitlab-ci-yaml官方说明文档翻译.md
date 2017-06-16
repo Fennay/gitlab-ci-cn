@@ -141,7 +141,7 @@ variables:
 
 **从GitLab 9.0开始，pipelines和job就默认开启了缓存**
 
-如果`cache`定义在jobs的作用域之外，那么它就是全局缓存，所用jobs都可以使用该缓存。
+如果`cache`定义在jobs的作用域之外，那么它就是全局缓存，所有jobs都可以使用该缓存。
 
 缓存`binaries`和`.config`中的所有文件：
 
