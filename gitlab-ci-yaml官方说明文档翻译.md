@@ -56,7 +56,7 @@ job1:
 
 下面列出保留字段，这些保留字段不能被定义为`job`名称：
 
-| 关键字           | 是否必须 | 描述                                       |
+|关键字           |是否必须 |描述                                       |
 | ------------- | ---- | ---------------------------------------- |
 | image         | 否    | 用于docker镜像，查看[docker](https://docs.gitlab.com/ce/ci/docker/README.html)文档 |
 | services      | 否    | 用于docker服务，查看[docker](https://docs.gitlab.com/ce/ci/docker/README.html)文档 |
@@ -131,7 +131,7 @@ variables:
 
 除了用户自定义的变量外，Runner也可以定义它自己的变量。`CI_COMMIT_REG_NAME`就是一个很好的例子，它的值表示用于构建项目的分支或tag名称。除了在`.gitlab-ci.yml`中设置变量外，还有可以通过GitLab的界面上设置私有变量。
 
-[更多关于variables。](https://docs.gitlab.com/ce/ci/variables/README.html)
+[更多关于variables](https://docs.gitlab.com/ce/ci/variables/README.html)。
 
 ### cache
 
@@ -154,7 +154,7 @@ rspec:
     - .config
 ```
 
-缓存git中没有被被跟踪的文件：
+缓存git中没有被跟踪的文件：
 
 ```yaml
 rspec:
