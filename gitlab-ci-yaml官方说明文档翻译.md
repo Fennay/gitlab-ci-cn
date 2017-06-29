@@ -57,9 +57,9 @@ job1:
 下面列出保留字段，这些保留字段不能被定义为`job`名称：
 
 | 关键字           | 是否必须 | 描述                                       |
-| ------------- | ---- | ---------------------------------------- |
-| image         | 否    | 用于docker镜像，查看[docker](https://docs.gitlab.com/ce/ci/docker/README.html)文档 |
-| services      | 否    | 用于docker服务，查看[docker](https://docs.gitlab.com/ce/ci/docker/README.html)文档 |
+| :------------ | :--- | :--------------------------------------- |
+| image         | 否    | 使用docker镜像，查看[docker](https://docs.gitlab.com/ce/ci/docker/README.html)文档 |
+| services      | 否    | 使用docker服务，查看[docker](https://docs.gitlab.com/ce/ci/docker/README.html)文档 |
 | stages        | 否    | 定义构建阶段                                   |
 | types         | 否    | `stages` 的别名(已废除)                        |
 | before_script | 否    | 定义在每个job之前运行的命令                          |
@@ -289,7 +289,7 @@ job_name:
 
 #### script
 
-`script`是Runner执行的yaml脚步。举个例子：
+`script`是Runner执行的yaml脚本。举个例子：
 
 ```yaml
 job:
