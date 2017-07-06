@@ -56,24 +56,16 @@ job1:
 
 下面列出保留字段，这些保留字段不能被定义为`job`名称：
 
-<<<<<<< HEAD
 | 关键字           | 是否必须 | 描述                                       |
-| :------------ | :--- | :--------------------------------------- |
-| image         | 否    | 使用docker镜像，查看[docker](https://docs.gitlab.com/ce/ci/docker/README.html)文档 |
-| services      | 否    | 使用docker服务，查看[docker](https://docs.gitlab.com/ce/ci/docker/README.html)文档 |
-=======
-|关键字           |是否必须 |描述                                       |
 | ------------- | ---- | ---------------------------------------- |
 | image         | 否    | 用于docker镜像，查看[docker](https://docs.gitlab.com/ce/ci/docker/README.html)文档 |
 | services      | 否    | 用于docker服务，查看[docker](https://docs.gitlab.com/ce/ci/docker/README.html)文档 |
->>>>>>> 7a93ef0b81ee3e3eb28a3d5e524ca1a98396741c
 | stages        | 否    | 定义构建阶段                                   |
 | types         | 否    | `stages` 的别名(已废除)                        |
 | before_script | 否    | 定义在每个job之前运行的命令                          |
 | after_script  | 否    | 定义在每个job之后运行的命令                          |
 | variable      | 否    | 定义构建变量                                   |
 | cache         | 否    | 定义一组文件列表，可在后续运行中使用                       |
-
 ### image和services
 
 这两个关键字允许使用一个自定义的Docker镜像和一系列的服务，并且可以用于整个job周期。详细配置文档请查看[a separate document](https://docs.gitlab.com/ce/ci/docker/README.html)。
