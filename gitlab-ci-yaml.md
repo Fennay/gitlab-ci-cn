@@ -238,7 +238,7 @@ cache:
   untracked: true
 ```
 
-如果使用的**[Windows Batch](http://blog.csdn.net/hitlion2008/article/details/7467252)(windows批处理)**来跑脚本需要用`%`替代`$`：
+如果使用的[**Windows Batch](http://blog.csdn.net/hitlion2008/article/details/7467252)(windows批处理**)来跑脚本需要用`%`替代`$`：
 
 ```yaml
 cache:
