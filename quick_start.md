@@ -16,8 +16,8 @@ GitLab提供[持续集成](https://about.gitlab.com/gitlab-ci/)服务。如果�
 
 因此，简而言之，CI所需要的步骤可以归结为：
 
- 	1. 添加`.gitlab-ci.yml`到项目的根目录
- 	2. 配置一个Runner
+   	1. 添加`.gitlab-ci.yml`到项目的根目录
+     2. 配置一个Runner
 
 从此刻开始，在每一次push到Git仓库的过程中，Runner会自动开启pipline，pipline将显示在项目的Pipline页面中。
 
@@ -29,3 +29,15 @@ GitLab提供[持续集成](https://about.gitlab.com/gitlab-ci/)服务。如果�
 - 一个想使用GitLab CI的项目
 
 让我们把它分解成碎片，并致力于解决GitLab CI之谜。
+
+# 创建`.gitlab-ci.yml`
+
+在创建`.gitlab-ci.yml`之前，我们先对它进行个简单的解释。
+
+## `.gitlab-ci.yml`是什么
+
+`.gitlab-ci.yml`是用来配置CI在我们的项目中做些什么工作。它位于项目的根目录。
+
+在任何的push操作，GitLab都会寻找`.gitlab-ci.yml`文件，并对此次commit开始jobs，jobs的内容来源于`.gitlab-ci.yml`文件。
+
+因为`.gitlab-ci.yml`是存在于我们的项目仓库中，并且受版本控制的，所以旧版本也可以执行成功，且使用CI可以让forks更容易，分支可也以拥有不同的pipelines和jobs，而且对于CI来说只会拥有单一的来源。你也可以在我们的博客中找到我们为什么使用`.gitlab-ci.yml`的原因。
