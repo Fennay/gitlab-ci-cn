@@ -283,7 +283,6 @@ Running on runner-8a2f473d-project-1796893-concurrent-0 via runner-8a2f473d-mach
 ++ mkdir -p /builds/gitlab-examples/ci-debug-trace.tmp
 ++ echo -n '-----BEGIN CERTIFICATE-----
 MIIFQzCCBCugAwIBAgIRAL/ElDjuf15xwja1ZnCocWAwDQYJKoZIhvcNAQELBQAw'
-
 ...
 ```
 
