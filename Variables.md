@@ -1,8 +1,8 @@
-[TOC]
-
 # Variables
 
-原页面：https://docs.gitlab.com/ce/ci/variables/README.html
+[TOC]
+
+官方文档：https://docs.gitlab.com/ce/ci/variables/README.html
 
 当GitLab CI 中接受到一个job后，[Runner](https://docs.gitlab.com/runner/)就开始准备构建环境。开始设置预定义的变量(环境变量)和用户自定义的变量。
 
