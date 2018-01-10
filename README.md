@@ -9,7 +9,7 @@
 | 2017-12-29 | gitlab-ci-yaml                | yaml配置文档  | [访问地址](https://fennay.github.io/gitlab-ci-cn/gitlab-ci-yaml.html) |
 | 2017-07-02 | Variables                     | 变量说明      | [访问地址](https://fennay.github.io/gitlab-ci-cn/variables.html) |
 | 2018-01-05 | Quick start guide             | 快速引导页     | [访问地址](https://fennay.github.io/gitlab-ci-cn/quick_start.html) |
-| 2018-01-10 | GitLab Continuous Integration | GitLab CI | 访问[地址](https://fennay.github.io/gitlab-ci-cn/gitlab-ci.html) |
+| 2018-01-10 | GitLab Continuous Integration | GitLab CI | [访问地址](https://fennay.github.io/gitlab-ci-cn/gitlab-ci.html) |
 
 计划内容：
 
