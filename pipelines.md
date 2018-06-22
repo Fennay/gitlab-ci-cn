@@ -12,5 +12,5 @@
 
 pipeline 是一组按[阶段](https://docs.gitlab.com/ee/ci/yaml/README.html#stages)（批处理）执行的[jobs](https://docs.gitlab.com/ee/ci/pipelines.html#jobs)。同一个阶段中的所有任务都是并行执行的（如果有足够的并发[Runners](https://docs.gitlab.com/ee/ci/runners/README.html)），如果它们全部成功，pipeline就进入下一个阶段。如果其中一个jobs失败，则下一个阶段不（通常）执行。您可以访问项目**Pipelines**选项卡中的pipeline页面。
 
-在下面的图像中，您可以看到pipeline由4个阶段组成（`build(构建)`, `test(测试)`, `staging(分级)`, `production(生产)`），每个阶段都有一个或多个作业。
+在下面的图像中，您可以看到pipeline由4个阶段组成（`build(构建)`, `test(测试)`, `staging(分级)`, `production(生产)`），每个阶段都有一个或多个job。
 
