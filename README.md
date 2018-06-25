@@ -10,7 +10,7 @@
 | 2017-07-02 | Variables                     | 变量说明      | [访问地址](https://fennay.github.io/gitlab-ci-cn/variables.html) |
 | 2018-01-05 | Quick start guide             | 快速引导页     | [访问地址](https://fennay.github.io/gitlab-ci-cn/quick_start.html) |
 | 2018-01-10 | GitLab Continuous Integration | GitLab CI | [访问地址](https://fennay.github.io/gitlab-ci-cn/gitlab-ci.html) |
-| 2018-01-10 | Pipelines and jobs 			 | 管道 | [访问地址](https://fennay.github.io/gitlab-ci-cn/pipelines.html) |
+| 2018-06-23 | Pipelines and jobs 			 | 管道 | [访问地址](https://fennay.github.io/gitlab-ci-cn/pipelines.html) |
 
 计划内容：
 
