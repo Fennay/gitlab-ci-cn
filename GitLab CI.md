@@ -75,30 +75,30 @@ GitLab CI/CD支持多种配置选项：
 | Feature                                | Description                                                                                                                    |
 | -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
 | Configure                              |                                                                                                                                |
-| Auto DevOps                            | Set up your app’s entire lifecycle.                                                                                            |
-| ChatOps                                | Trigger CI jobs from chat, with results sent back to the channel.                                                              |
+| Auto DevOps                            | 设置应用的整个生命周期。                                                                                            |
+| ChatOps                                | 从聊天中触发CI作业，并将结果发送回频道                                                              |
 | Verify                                 |                                                                                                                                |
-| Browser Performance Testing            | Quickly determine the performance impact of pending code changes.                                                              |
-| CI services                            | Link Docker containers with your base image.                                                                                   |
-| Code Quality                           | Analyze your source code quality.                                                                                              |
-| GitLab CI/CD for external repositories | Get the benefits of GitLab CI/CD combined with repositories in GitHub and BitBucket Cloud.                                     |
-| Interactive Web Terminals              | Open an interactive web terminal to debug the running jobs.                                                                    |
-| JUnit tests                            | Identify script failures directly on merge requests.                                                                           |
-| Using Docker images                    | Use GitLab and GitLab Runner with Docker to build and test applications.                                                       |
+| Browser Performance Testing            | 快速确定待定代码更改对性能的影响                                                              |
+| CI services                            | 将Docker容器与基本映像链接                                                                                   |
+| Code Quality                           | 分析您的源代码质量。                                                                                              |
+| GitLab CI/CD for external repositories | 在GitHub和BitBucket Cloud中享受 GitLab CI/CD 与存储库相结合的好处。                                     |
+| Interactive Web Terminals              | 打开交互式Web终端以调试正在运行的作业                                                                    |
+| JUnit tests                            | 直接在合并请求中识别脚本故障                                                                           |
+| Using Docker images                    | 使用GitLab和GitLab Runner与Docker构建和测试应用程序                                                       |
 | **Release**                            |                                                                                                                                |
-| Auto Deploy                            | Deploy your application to a production environment in a Kubernetes cluster.                                                   |
-| Building Docker images                 | Maintain Docker-based projects using GitLab CI/CD.                                                                             |
-| Canary Deployments                     | Ship features to only a portion of your pods and let a percentage of your user base to visit the temporarily deployed feature. |
-| Deploy Boards                          | Check the current health and status of each CI/CD environment running on Kubernetes.                                           |
-| Feature Flags                          | Deploy your features behind Feature Flags.                                                                                     |
-| GitLab Pages                           | Deploy static websites.                                                                                                        |
-| GitLab Releases                        | Add release notes to Git tags.                                                                                                 |
-| Review Apps                            | Configure GitLab CI/CD to preview code changes.                                                                                |
+| Auto Deploy                            | 将应用程序部署到Kubernetes集群中的生产环境                                                   |
+| Building Docker images                 | 使用 GitLab CI/CD 维护基于Docker的项目                                                                             |
+| Canary Deployments                     | Ship features to only a portion of your pods and let a percentage of your user base to visit the temporarily deployed feature. （只讲功能应用到一部分仓库中、并且让一个百分比的用户能够访问该暂时部署的特性功能）|
+| Deploy Boards                          | 检查在 Kubernetes 上运行的每个CI/CD环境当前运行状况和状态                                           |
+| Feature Flags                          | 在功能标志后面部署功能                                                                                     |
+| GitLab Pages                           | 部署静态网站                                                                                                        |
+| GitLab Releases                        | 将发行说明添加到Git标记                                                                                                 |
+| Review Apps                            | 配置 GitLab CI/CD以预览代码更改                                                                                |
 | **Secure**                             |                                                                                                                                |
-| Container Scanning                     | Check your Docker containers for known vulnerabilities.                                                                        |
-| Dependency Scanning                    | Analyze your dependencies for known vulnerabilities.                                                                           |
-| License Compliance                     | Search your project dependencies for their licenses.                                                                           |
-| Security Test reports                  | Check for app vulnerabilities.                                                                                                 |
+| Container Scanning                     | 检查Docker容器中是否存在已知漏洞                                                                        |
+| Dependency Scanning                    | 分析已知漏洞的依赖关系                                                                           |
+| License Compliance                     | 搜索项目依赖项以获取其许可证                                                                           |
+| Security Test reports                  | 检查应用程序漏洞                                                                                                 |
 
 ## 示例
 
@@ -129,6 +129,29 @@ GitLab还提供了预先配置为使用 GitLab CI/CD 的[示例项目](https://g
 
 另见为 [Why CI/CD?](https://docs.google.com/presentation/d/1OGgk2Tcxbpl7DJaIOzCX4Vqg3dlwfELC3u2jEeCBbDk)介绍。
 
-打破变化
+## Breaking changes
 
--
+As GitLab CI/CD has evolved, certain breaking changes have been necessary. These are:
+
+### 12.0
+
+- [Use refspec to clone/fetch git repository.](https://gitlab.com/gitlab-org/gitlab-runner/issues/4069)
+- [Old cache configuration.](https://gitlab.com/gitlab-org/gitlab-runner/issues/4070)
+- [Old metrics server configuration.](https://gitlab.com/gitlab-org/gitlab-runner/issues/4072)
+- [Remove FF_K8S_USE_ENTRYPOINT_OVER_COMMAND.](https://gitlab.com/gitlab-org/gitlab-runner/issues/4073)
+- [Remove Linux distributions that reach EOL.](https://gitlab.com/gitlab-org/gitlab-runner/merge_requests/1130)
+- [Update command line API for helper images.](https://gitlab.com/gitlab-org/gitlab-runner/issues/4013)
+- [Remove old git clean flow.](https://gitlab.com/gitlab-org/gitlab-runner/issues/4175)
+
+### 11.0
+
+- No breaking changes.
+
+### 10.0
+
+- No breaking changes.
+
+### 9.0
+
+- [CI variables renaming for GitLab 9.0.](https://docs.gitlab.com/ee/ci/variables/deprecated_variables.html#gitlab-90-renamed-variables) Read about the deprecated CI variables and what you should use for GitLab 9.0+.
+- [New CI job permissions model](https://docs.gitlab.com/ee/user/project/new_ci_build_permissions_model.html). See what changed in GitLab 8.12 and how that affects your jobs. There’s a new way to access your Git submodules and LFS objects in jobs.
