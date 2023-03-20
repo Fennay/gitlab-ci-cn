@@ -15,10 +15,10 @@ GitLab提供[持续集成](https://about.gitlab.com/gitlab-ci/)服务。如果�
 大多数项目使用GitLab CI服务来运行测试套件，这样如果开发人员发现问题就会及时得到反馈。
 
 因此，简而言之，CI所需要的步骤可以归结为：
-
-       	1. 添加`.gitlab-ci.yml`到项目的根目录
-        	2. 配置一个Runner
-
+```
+1. 添加`.gitlab-ci.yml`到项目的根目录
+2. 配置一个Runner
+```
 从此刻开始，在每一次push到Git仓库的过程中，Runner会自动开启pipline，pipline将显示在项目的Pipline页面中。
 
 ------
