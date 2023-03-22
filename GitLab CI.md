@@ -29,7 +29,7 @@
 
 ## 参考指南
 
-一旦你熟悉了入门指南，你就会发现自己回去查阅特定的参考指南。
+一旦你熟悉了入门指南，你就会发现自己会去查阅特定的参考指南。
 
 - [`.gitlab-ci.yml`指南](https://fennay.github.io/gitlab-ci-cn/quick_start.html) - 了解关于`.gitlab-ci.yml`的所有细节和参数设置。
 - CI Variables - 了解如何在你的`.gitlab-ci.yml`中使用变量或者保证项目中变量安全。
