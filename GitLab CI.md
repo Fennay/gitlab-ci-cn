@@ -29,10 +29,10 @@
 
 ## 参考指南
 
-一旦你熟悉了入门指南，你就会发现自己会去查阅特定的参考指南。
+一旦你熟悉了入门指南，你就可以去查阅特定的参考指南。
 
 - [`.gitlab-ci.yml`指南](https://fennay.github.io/gitlab-ci-cn/quick_start.html) - 了解关于`.gitlab-ci.yml`的所有细节和参数设置。
-- CI Variables - 了解如何在你的`.gitlab-ci.yml`中使用变量或者保证项目中变量安全。
+- CI Variables - 了解如何在你的`.gitlab-ci.yml`中使用变量或者保证项目中变量的安全。
 - 权限模型 - 了解用户执行某些CI操作的访问级别
   - [用户权限](https://docs.gitlab.com/ee/user/permissions.html#gitlab-ci)
   - [Job权限](https://docs.gitlab.com/ee/user/permissions.html#job-permissions)
@@ -43,7 +43,7 @@
 
 ## GitLab CI + Docker 
 
-利用Docker的力量来运行CI piplis。
+利用Docker的力量来运行CI pipelines。
 
 - 使用docker 镜像执行GitLab Runner。
 - 使用CI构建docker镜像
