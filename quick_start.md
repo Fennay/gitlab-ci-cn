@@ -1,6 +1,5 @@
 # 开始GitLab CI/CD
 
-[TOC]
 
 官方原文档：https://docs.gitlab.com/ee/ci/quick_start/README.html
 

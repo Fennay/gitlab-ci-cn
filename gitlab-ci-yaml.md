@@ -1,7 +1,5 @@
 # 通过 .gitlab-ci.yml配置任务
 
-[TOC]
-
 此文档用于描述.gitlab-ci.yml语法，.gitlab-ci.yml文件被用来管理项目的runner 任务。
 
 如果想要快速的了解GitLab CI ，可查看[快速引导](https://docs.gitlab.com/ce/ci/quick_start/README.html)。

@@ -43,10 +43,10 @@
 
 ## GitLab CI + Docker 
 
-利用Docker的力量来运行CI pipelines。
+利用Docker的能力来运行CI pipelines。
 
-- 使用docker 镜像执行GitLab Runner。
-- 使用CI构建docker镜像
+- 使用docker 镜像执行 GitLab Runner。
+- 使用CI构建 docker 镜像
 - CI 服务（链接docker容器）
 - 文章
   - [Setting up GitLab Runner For Continuous Integration](https://about.gitlab.com/2016/03/01/gitlab-runner-with-docker/)
